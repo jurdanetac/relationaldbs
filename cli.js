@@ -1,25 +1,60 @@
-require('dotenv').config()
-const { Sequelize } = require('sequelize')
+// used for cli testing purposes, index.js is the main entry point for the webapp
 
-const sequelize = new Sequelize(process.env.DATABASE_URL)
+require("dotenv").config();
+const { Sequelize, Model, DataTypes } = require("sequelize");
+
+const sequelize = new Sequelize(process.env.DATABASE_URL);
+
+// define the model
+class Blog extends Model {}
+Blog.init(
+  {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    author: {
+      type: DataTypes.TEXT,
+    },
+    url: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    title: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    likes: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+  },
+  {
+    sequelize,
+    underscored: true,
+    timestamps: false,
+    modelName: "blog",
+  },
+);
 
 const main = async () => {
   try {
-    await sequelize.authenticate()
+    await Blog.sync();
+
+    await sequelize.authenticate();
 
     // select all blogs
-    const blogs = await sequelize.query('SELECT * FROM blogs', {
-      type: sequelize.QueryTypes.SELECT,
-    })
+    const blogs = await Blog.findAll();
 
     blogs.forEach((blog) => {
-      console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`)
-    })
+      console.log(`${blog.author}: '${blog.title}', ${blog.likes} likes`);
+    });
 
-    sequelize.close()
+    sequelize.close();
   } catch (error) {
-    console.error('Unable to connect to the database:', error)
+    console.error("Unable to connect to the database:", error);
   }
-}
+};
 
-main()
+main();
