@@ -10,7 +10,18 @@ router.get("/", async (_req, res) => {
 
 router.post("/", async (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
+
+  if (!req.body.title || !req.body.url) {
+    throw { name: "WrongArgumentsError" };
+  }
+
   const blog = await Blog.create(req.body);
+
+  if (!blog) {
+    throw { name: "SequelizeValidationError" };
+  }
+
+  console.log(`Created blog with id ${blog.id}`);
   res.json(blog);
 });
 
@@ -24,6 +35,13 @@ router.delete("/:id", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const id = req.params.id;
   const likes = req.body.likes;
+
+  if (typeof likes !== "number" || likes < 0) {
+    throw { name: "WrongArgumentsError" };
+  } else if (!(await Blog.findByPk(id))) {
+    throw { name: "NotFoundError" };
+  }
+
   await Blog.update({ likes }, { where: { id } });
   console.log(`Set blog with id ${id} likes to ${likes}`);
   res.send({ likes });
