@@ -21,4 +21,12 @@ router.delete("/:id", async (req, res) => {
   res.status(204).end();
 });
 
+router.put("/:id", async (req, res) => {
+  const id = req.params.id;
+  const likes = req.body.likes;
+  await Blog.update({ likes }, { where: { id } });
+  console.log(`Set blog with id ${id} likes to ${likes}`);
+  res.send({ likes });
+});
+
 module.exports = router;
