@@ -21,7 +21,7 @@ const errorHandler = (error, request, response, next) => {
       .status(501)
       .send({ error: "Unable to connect to the database" });
   } else if (error.name === "NotFoundError") {
-    return response.status(404).send({ error: "Blog not found" });
+    return response.status(404).send({ error: "Not found" });
   } else if (error.name === "SequelizeValidationError") {
     return response.status(400).send({ error: "Validation error" });
   } else if (error.name === "WrongArgumentsError") {
