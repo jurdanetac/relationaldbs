@@ -23,7 +23,7 @@ const errorHandler = (error, request, response, next) => {
   } else if (error.name === "NotFoundError") {
     return response.status(404).send({ error: "Not found" });
   } else if (error.name === "SequelizeValidationError") {
-    return response.status(400).send({ error: "Validation error" });
+    return response.status(400).send({ error: error.errors[0].message });
   } else if (error.name === "WrongArgumentsError") {
     return response.status(400).send({ error: "Malformed request" });
   } else if (error.name === "SyntaxError") {
