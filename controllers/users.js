@@ -29,7 +29,10 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const user = await User.findByPk(req.params.id);
+  const user = await User.findByPk(req.params.id, {
+    include: { model: Blog, attributes: ["title", "url", "likes"] },
+  });
+
   if (user) {
     res.json(user);
   } else {

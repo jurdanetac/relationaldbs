@@ -15,6 +15,17 @@ router.get("/", async (_req, res) => {
   res.json(blogs);
 });
 
+router.get("/:id", async (req, res) => {
+  const blog = await Blog.findByPk(req.params.id, {
+    include: {
+      model: User,
+      attributes: ["name", "username"],
+    },
+  });
+
+  res.json(blog);
+});
+
 router.post("/", tokenExtractor, async (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
 
