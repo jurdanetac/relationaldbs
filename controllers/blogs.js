@@ -1,21 +1,28 @@
 const router = require("express").Router();
 
-const { Blog } = require("../models");
+const { Blog, User } = require("../models");
+
+const { tokenExtractor } = require("../util/middleware");
 
 router.get("/", async (_req, res) => {
-  const blogs = await Blog.findAll();
+  const blogs = await Blog.findAll({
+    include: {
+      model: User,
+      attributes: ["name", "username"],
+    },
+  });
   blogs.map((blog) => console.log(blog.toJSON()));
   res.json(blogs);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", tokenExtractor, async (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
 
   if (!req.body.title || !req.body.url) {
     throw { name: "WrongArgumentsError" };
   }
 
-  const blog = await Blog.create(req.body);
+  const blog = await Blog.create({ ...req.body, userId: req.decodedToken.id });
 
   if (!blog) {
     throw { name: "SequelizeValidationError" };
