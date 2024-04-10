@@ -33,7 +33,10 @@ const errorHandler = (error, request, response, next) => {
     return response.status(400).send({ error: "Malformed request" });
   } else if (error.name === "SyntaxError") {
     return response.status(400).send({ error: "Syntax error" });
+  } else if (error.name === "UnauthorizedError") {
+    return response.status(401).send({ error: "Unauthorized" });
   } else {
+    console.error(error);
     return response.status(500).send({ error: "Internal server error" });
   }
 };

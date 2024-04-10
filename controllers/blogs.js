@@ -32,11 +32,19 @@ router.post("/", tokenExtractor, async (req, res) => {
   res.json(blog);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", tokenExtractor, async (req, res) => {
   const id = req.params.id;
+  const blog = await Blog.findByPk(id);
+
+  if (!blog) {
+    throw { name: "NotFoundError" };
+  } else if (blog.userId !== req.decodedToken.id) {
+    throw { name: "UnauthorizedError" };
+  }
+
   await Blog.destroy({ where: { id } });
   console.log(`Deleted blog with id ${id}`);
-  res.status(204).end();
+  return res.status(200).send({ message: `Deleted blog with id ${id}` });
 });
 
 router.put("/:id", async (req, res) => {
@@ -51,7 +59,7 @@ router.put("/:id", async (req, res) => {
 
   await Blog.update({ likes }, { where: { id } });
   console.log(`Set blog with id ${id} likes to ${likes}`);
-  res.send({ likes });
+  return res.status(200).send({ likes });
 });
 
 module.exports = router;
