@@ -28,6 +28,7 @@ router.get("/", async (req, res) => {
         },
       ],
     },
+    order: [["likes", "DESC"]],
   });
   blogs.map((blog) => console.log(blog.toJSON()));
   res.json(blogs);
