@@ -13,10 +13,20 @@ router.get("/", async (req, res) => {
       model: User,
       attributes: ["name", "username"],
     },
+    // search in either title or author
     where: {
-      title: {
-        [Op.substring]: req.query.search ? req.query.search : "",
-      },
+      [Op.or]: [
+        {
+          title: {
+            [Op.substring]: req.query.search ? req.query.search : "",
+          },
+        },
+        {
+          author: {
+            [Op.substring]: req.query.search ? req.query.search : "",
+          },
+        },
+      ],
     },
   });
   blogs.map((blog) => console.log(blog.toJSON()));
