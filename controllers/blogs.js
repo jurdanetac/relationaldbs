@@ -1,15 +1,22 @@
 const router = require("express").Router();
 
+const { Op } = require("sequelize");
+
 const { Blog, User } = require("../models");
 
 const { tokenExtractor } = require("../util/middleware");
 
-router.get("/", async (_req, res) => {
+router.get("/", async (req, res) => {
   const blogs = await Blog.findAll({
     attributes: { exclude: ["userId"] },
     include: {
       model: User,
       attributes: ["name", "username"],
+    },
+    where: {
+      title: {
+        [Op.substring]: req.query.search ? req.query.search : "",
+      },
     },
   });
   blogs.map((blog) => console.log(blog.toJSON()));
@@ -24,6 +31,10 @@ router.get("/:id", async (req, res) => {
       attributes: ["name", "username"],
     },
   });
+
+  if (!blog) {
+    throw { name: "NotFoundError" };
+  }
 
   res.json(blog);
 });
