@@ -6,6 +6,7 @@ const { tokenExtractor } = require("../util/middleware");
 
 router.get("/", async (_req, res) => {
   const blogs = await Blog.findAll({
+    attributes: { exclude: ["userId"] },
     include: {
       model: User,
       attributes: ["name", "username"],
@@ -17,6 +18,7 @@ router.get("/", async (_req, res) => {
 
 router.get("/:id", async (req, res) => {
   const blog = await Blog.findByPk(req.params.id, {
+    attributes: { exclude: ["userId"] },
     include: {
       model: User,
       attributes: ["name", "username"],
