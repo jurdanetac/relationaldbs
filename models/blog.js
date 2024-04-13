@@ -32,6 +32,19 @@ Blog.init(
       allowNull: false,
       references: { model: "users", key: "id" },
     },
+    // https://stackoverflow.com/a/62030283
+    year: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: "Year must be an integer" },
+        min: { args: 1991, msg: "Year must be greater than 1991" },
+        max: {
+          args: new Date().getFullYear(),
+          msg: "Year must be less than or equal to current year",
+        },
+      },
+    },
   },
   {
     sequelize,
