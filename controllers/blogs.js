@@ -12,6 +12,7 @@ router.get("/", async (req, res) => {
     include: {
       model: User,
       attributes: ["name", "username"],
+      as: "user",
     },
     // search in either title or author
     where: {
@@ -40,6 +41,7 @@ router.get("/:id", async (req, res) => {
     include: {
       model: User,
       attributes: ["name", "username"],
+      as: "user",
     },
   });
 

@@ -4,7 +4,11 @@ const { User, Blog } = require("../models");
 
 router.get("/", async (_req, res) => {
   const users = await User.findAll({
-    include: { model: Blog, attributes: ["title", "url", "likes"] },
+    include: {
+      model: Blog,
+      attributes: ["title", "author", "url", "likes"],
+      as: "blogs",
+    },
   });
   res.json(users);
 });
@@ -30,7 +34,11 @@ router.post("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const user = await User.findByPk(req.params.id, {
-    include: { model: Blog, attributes: ["title", "url", "likes"] },
+    include: {
+      model: Blog,
+      attributes: ["title", "author", "url", "likes"],
+      as: "blogs",
+    },
   });
 
   if (user) {
