@@ -7,7 +7,10 @@ router.get("/", async (_req, res) => {
     include: {
       model: Blog,
       attributes: ["title", "author", "url", "likes"],
-      as: "blogs",
+      as: "createdBlogs",
+    },
+    attributes: {
+      exclude: ["passwordHash"],
     },
   });
   res.json(users);
@@ -34,10 +37,23 @@ router.post("/", async (req, res) => {
 
 router.get("/:id", async (req, res) => {
   const user = await User.findByPk(req.params.id, {
-    include: {
-      model: Blog,
-      attributes: ["title", "author", "url", "likes"],
-      as: "blogs",
+    include: [
+      {
+        model: Blog,
+        attributes: ["title", "author", "url", "likes"],
+        as: "createdBlogs",
+      },
+      {
+        model: Blog,
+        attributes: ["title", "author", "url", "likes"],
+        as: "readingList",
+        through: {
+          attributes: [],
+        },
+      },
+    ],
+    attributes: {
+      exclude: ["passwordHash"],
     },
   });
 
