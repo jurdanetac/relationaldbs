@@ -1,6 +1,6 @@
 const Blog = require("./blog");
 const User = require("./user");
-const ReadingList = require("./readingList");
+const Reading = require("./reading");
 
 // relationship of blog - author
 User.hasMany(Blog, {
@@ -11,11 +11,11 @@ Blog.belongsTo(User, {
 });
 
 // reading list
-User.belongsToMany(Blog, { through: ReadingList, as: "readingList" });
-Blog.belongsToMany(User, { through: ReadingList, as: "readers" });
+User.belongsToMany(Blog, { through: Reading, as: "readings" });
+Blog.belongsToMany(User, { through: Reading, as: "readers" });
 
 module.exports = {
   Blog,
   User,
-  ReadingList,
+  Reading,
 };

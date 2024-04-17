@@ -45,10 +45,10 @@ router.get("/:id", async (req, res) => {
       },
       {
         model: Blog,
-        attributes: ["title", "author", "url", "likes"],
-        as: "readingList",
+        attributes: ["id", "url", "title", "author", "likes", "year"],
+        as: "readings",
         through: {
-          attributes: [],
+          attributes: ["read", "id"],
         },
       },
     ],
