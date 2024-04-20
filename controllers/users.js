@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const { Op, where } = require("sequelize");
 const router = require("express").Router();
 const { User, Blog } = require("../models");
 
@@ -36,6 +37,25 @@ router.post("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
+  const read = req.query.read;
+
+  if (read !== "true" && read !== "false" && read !== undefined) {
+    throw { name: "WrongArgumentsError" };
+  }
+
+  // https://stackoverflow.com/a/42246755
+  const whereStatement = {};
+
+  if (read === "true") {
+    whereStatement.read = true;
+  } else if (read === "false") {
+    whereStatement.read = false;
+  } else {
+    whereStatement.read = {
+      [Op.or]: [true, false],
+    };
+  }
+
   const user = await User.findByPk(req.params.id, {
     include: [
       {
@@ -49,6 +69,7 @@ router.get("/:id", async (req, res) => {
         as: "readings",
         through: {
           attributes: ["read", "id"],
+          where: whereStatement,
         },
       },
     ],
