@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const logger = require("./logger");
+const { Session } = require("../models");
 
 const requestLogger = (request, response, next) => {
   logger.info("Method:", request.method);
@@ -41,14 +42,36 @@ const errorHandler = (error, request, response, next) => {
   }
 };
 
-const tokenExtractor = (req, res, next) => {
+const tokenExtractor = async (req, res, next) => {
   const authorization = req.get("authorization");
   if (authorization && authorization.toLowerCase().startsWith("bearer ")) {
     try {
-      req.decodedToken = jwt.verify(
-        authorization.substring(7),
-        process.env.SECRET,
-      );
+      const rawToken = authorization.substring(7);
+
+      // crashes if token is invalid
+      const token = jwt.verify(rawToken, process.env.SECRET);
+
+      // finds the session with provided token
+      const session = await Session.findOne({
+        where: { token: rawToken },
+        raw: true,
+      });
+
+      // checks whether the session is still valid
+      if (
+        new Date(session.validUntil).toISOString() < new Date().toISOString()
+      ) {
+        // remove expired session from active sessions
+        await Session.destroy({
+          where: {
+            token: rawToken,
+          },
+        });
+        return res.status(401).json({ error: "token expired" });
+      }
+
+      // adds the decoded token to the request object
+      req.decodedToken = token;
     } catch {
       return res.status(401).json({ error: "token invalid" });
     }
