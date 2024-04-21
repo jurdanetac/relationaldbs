@@ -5,7 +5,7 @@ module.exports = {
     await queryInterface.addColumn("users", "disabled", {
       type: DataTypes.BOOLEAN,
       allowNull: false,
-      defaultValue: true,
+      defaultValue: false,
     });
     await queryInterface.createTable("sessions", {
       id: {
@@ -27,33 +27,8 @@ module.exports = {
         allowNull: false,
       },
     });
-    await queryInterface.sequelize.query(`
-      CREATE FUNCTION updateUserStatus() RETURNS TRIGGER AS $updateStatus$
-        BEGIN
-          IF (TG_OP = 'INSERT') THEN
-              UPDATE users
-              SET disabled = false
-              WHERE users.id = NEW.user_id;
-          ELSE
-              UPDATE users
-              SET disabled = true
-              WHERE users.id = OLD.user_id;
-          END IF;
-          RETURN NULL;
-        END;
-      $updateStatus$ LANGUAGE plpgsql;
-
-      CREATE TRIGGER updateUser
-        AFTER INSERT OR DELETE ON sessions
-          FOR EACH ROW
-            EXECUTE PROCEDURE updateUserStatus();
-      `);
   },
   down: async ({ context: queryInterface }) => {
-    await queryInterface.sequelize.query(`
-      DROP TRIGGER updateUser ON sessions;
-      DROP FUNCTION updateUserStatus();
-    `);
     await queryInterface.dropTable("sessions");
     await queryInterface.removeColumn("users", "disabled");
   },

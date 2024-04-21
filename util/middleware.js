@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const logger = require("./logger");
-const { Session } = require("../models");
+const { Session, User } = require("../models");
 
 const requestLogger = (request, response, next) => {
   logger.info("Method:", request.method);
@@ -51,16 +51,27 @@ const tokenExtractor = async (req, res, next) => {
       // crashes if token is invalid
       const token = jwt.verify(rawToken, process.env.SECRET);
 
+      // check if the user is disabled
+      if (
+        await User.findOne({
+          where: { id: token.id, disabled: true },
+          raw: true,
+        })
+      ) {
+        return res.status(401).json({ error: "user disabled" });
+      }
+
       // finds the session with provided token
       const session = await Session.findOne({
         where: { token: rawToken },
         raw: true,
       });
 
+      const now = new Date().toISOString();
+      const validUntil = new Date(session.validUntil).toISOString();
+
       // checks whether the session is still valid
-      if (
-        new Date(session.validUntil).toISOString() < new Date().toISOString()
-      ) {
+      if (validUntil < now) {
         // remove expired session from active sessions
         await Session.destroy({
           where: {
