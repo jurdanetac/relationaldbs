@@ -1,6 +1,12 @@
 const Blog = require("./blog");
 const User = require("./user");
 const Reading = require("./reading");
+const Session = require("./session");
+
+// relationship of user - session
+User.hasMany(Session, {
+  as: "user_sessions",
+});
 
 // relationship of blog - author
 User.hasMany(Blog, {
@@ -18,4 +24,5 @@ module.exports = {
   Blog,
   User,
   Reading,
+  Session,
 };
